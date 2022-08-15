@@ -1,0 +1,82 @@
+---
+title: "523FP"
+output: html_document
+date: "2022-08-15"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+library(tidyverse)
+library(factoextra)
+library(ggmap)
+
+### Boston Housing Graph
+
+### Possible Bk values
+xdat <- seq(0, 1, by = 0.01) 
+
+### Assumed B function of Bk
+ydat <- 1000 * ((xdat - 0.63)^2)
+
+### Combine into dataframe
+bdf <- data.frame(xdat, ydat)
+
+### Plot data and line of non-invertibility
+bplot <- ggplot(data = bdf, aes(x = xdat, y = ydat)) +
+    geom_line() +
+    geom_line(y = 136.9, color = "red") + 
+    xlab("Black Proportion of Population") + 
+    ylab("Value of B")
+
+### Boston Housing Map
+boston <- read.table("BostonCorrected.txt", header = TRUE, fill = TRUE)
+
+latlong <-c(-71.30, 42.00, -70.80, 42.40) ### Boston
+
+map <- ggmap::get_map(location = latlong, zoom = 12)
+
+plotmap <- ggmap(map) + geom_point(aes(x = LON, y = LAT),data = boston, alpha = 0.4,size=3)+ labs(title="Location of Homes in 'Corrected' Boston Housing Dataset",y="Latitude",x="Longtitude" )
+
+
+### K-means for mtcars and USArrests
+
+### scale data
+mts <- scale(mtcars)
+usas <- scale(USArrests)
+
+### K-means on respective datasets
+mtk <- kmeans(mts, 4, nstart = 150)
+usak <- kmeans(usas, 4, nstart = 150)
+
+### Plot with fviz_cluster func in factoextra
+mtcplt <- factoextra::fviz_cluster(mtk, data = mtcars, main = "mtcars Cluster")
+
+usaplt <- factoextra::fviz_cluster(usak, data = USArrests, main = "USArrests Cluster")
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+### Show graph
+bplot
+
+### Show map
+plotmap
+
+### Show cluster plots
+mtcplt
+usaplt
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
